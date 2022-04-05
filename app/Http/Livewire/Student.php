@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Services\StudentService;
+use Exception;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -11,6 +12,7 @@ class Student extends Component
     use WithFileUploads;
 
     public $name, $gender, $birthplace, $birthdate, $address, $studentNumber, $image;
+    public $imagePath;
     public $studentid;
 
     protected $paginationTheme = 'bootstrap';
@@ -25,6 +27,11 @@ class Student extends Component
         'address' => 'required',
         'studentNumber' => 'required|numeric|unique:students',
         'image' => 'required|file|mime:jpg,png,jpeg|',
+    ];
+
+    protected $listeners = [
+        'update',
+        'delete',
     ];
 
     public function mount(StudentService $service)
@@ -51,9 +58,14 @@ class Student extends Component
             'imagePath' => $imagePath,
         ];
 
-        $service = $this->service->save($data);
+        try
+        {
+            $service = $this->service->save($data);
+            $this->studentid = $service->id;
+        } catch (Exception $e) {
 
-        $this->studentid = $service->id;
+        }
+
     }
 
     public function update($id)
@@ -70,12 +82,32 @@ class Student extends Component
             'imagePath' => $imagePath,
         ];
 
-        $this->service->update($data, $id);
+        try
+        {
+            $this->service->update($data, $id);
+        } catch (Exception $e) {
+
+        }
     }
 
     public function delete($id)
     {
-        $this->service->deleteByid($id);
+        try
+        {
+            $this->service->deleteByid($id);
+        } catch (Exception $e) {
+
+        }
+    }
+
+    public function show($id)
+    {
+        try
+        {
+            $service = $this->service->getId();
+        } catch (Exception $e) {
+
+        }
     }
 
     public function check()
