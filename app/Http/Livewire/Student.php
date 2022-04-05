@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Services\StudentService;
 use Exception;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -48,6 +49,8 @@ class Student extends Component
     {
         $this->validate();
 
+        $this->imagePath = Storage::putFileAs($this->image, time());
+
         $data = [
             'name' => $this->name,
             'gender' => $this->gender,
@@ -55,7 +58,7 @@ class Student extends Component
             'birthdate' => $this->birthdate,
             'address' => $this->address,
             'studentNumber' => $this->studentNumber,
-            'imagePath' => $imagePath,
+            'imagePath' => $this->imagePath,
         ];
 
         try
@@ -66,6 +69,8 @@ class Student extends Component
 
         }
 
+        $this->emit('refreshTable');
+        $this->resetInput();
     }
 
     public function update($id)
@@ -79,7 +84,7 @@ class Student extends Component
             'birthdate' => $this->birthdate,
             'address' => $this->address,
             'studentNumber' => $this->studentNumber,
-            'imagePath' => $imagePath,
+            'imagePath' => $this->imagePath,
         ];
 
         try
@@ -88,6 +93,9 @@ class Student extends Component
         } catch (Exception $e) {
 
         }
+
+        $this->emit('refreshTable');
+        $this->resetInput();
     }
 
     public function delete($id)
@@ -98,13 +106,15 @@ class Student extends Component
         } catch (Exception $e) {
 
         }
+
+        $this->emit('refreshTable');
     }
 
     public function show($id)
     {
         try
         {
-            $service = $this->service->getId();
+            $service = $this->service->getId($id);
         } catch (Exception $e) {
 
         }
@@ -117,5 +127,18 @@ class Student extends Component
         } elseif ($this->studentNumber) {
             $this->update($this->studentNumber);
         }
+    }
+
+    public function resetInput()
+    {
+        $this->name = null;
+        $this->gender = null;
+        $this->birthplace = null;
+        $this->birthdate = null;
+        $this->address = null;
+        $this->studentNumber = null;
+        $this->image = null;
+        $this->imagePath = null;
+        $this->studentid = null;
     }
 }

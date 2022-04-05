@@ -18,6 +18,10 @@ class StudentTable extends Component
     public $orderKey = "id";
     public $order = 'asc';
 
+    protected $listeners = [
+        'refreshTable' => '$refresh',
+    ];
+
     public function mount(StudentService $service)
     {
         $this->service = $service;
